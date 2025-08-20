@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="sk" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Deutsch Trainer – A1 → C1</title>
+<link rel="stylesheet" href="assets/css/styles.css" />
+<meta name="description" content="Modulárny tréner nemčiny s lekciami A1–C1, vstupným kvízom a balíčkami slovnej zásoby. Pripravené pre GitHub Pages." />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span>Deutsch Trainer</span>
+        <span class="pill" id="levelTag">Level: –</span>
+      </div>
+      <div class="actions">
+        <div class="pill">Progres: <b id="donePct" style="margin-left:6px">0%</b></div>
+        <button class="btn small" id="toggleTheme">🌓 Téma</button>
+        <button class="btn small ghost" id="resetBtn">Resetovať</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="grid grid-3">
+      <div class="card">
+        <h1>Vitaj! 👋</h1>
+        <p class="muted">Táto verzia je modulárna a pripravená na <b>GitHub Pages</b>. Všetko beží v prehliadači. Pri prvom spustení absolvuješ kvíz na určenie úrovne a tém.</p>
+        <div class="progress" aria-label="Celkový progres"><i id="progressBar" style="width:0%"></i></div>
+        <div class="row" style="margin-top:8px">
+          <span class="pill">Streak: <b id="streak">0</b> dní</span>
+          <span class="pill">Dátum: <b id="today"></b></span>
+          <span class="pill">Najbližšia téma: <b id="nextTopic">–</b></span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Aktuálna lekcia</h2>
+        <div id="currentLessonBox" class="list"></div>
+      </div>
+      <div class="card">
+        <h2>Prehľad</h2>
+        <div class="tabs" role="tablist" aria-label="Sekcie">
+          <button class="active" data-tab="lessons" role="tab">📘 Lekcie</button>
+          <button data-tab="vocab" role="tab">🗂️ Slovná zásoba</button>
+          <button data-tab="tests" role="tab">🧪 Testy</button>
+          <button data-tab="plan" role="tab">🧭 Plán</button>
+        </div>
+        <section id="lessons" class="tabcard"></section>
+        <section id="vocab" class="tabcard hidden"></section>
+        <section id="tests" class="tabcard hidden"></section>
+        <section id="plan" class="tabcard hidden"></section>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lesson dialog -->
+  <dialog id="lessonDialog">
+    <div class="modal-head">
+      <strong id="lessonTitle">Lekcia</strong>
+      <button class="btn small ghost" id="closeLesson">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="section" id="secVocab">
+        <h3>1) Nové slovíčka</h3>
+        <div id="vocabList"></div>
+        <div class="flashcard" id="flashWrap" tabindex="0" aria-live="polite">
+          <div class="flashcard-inner">
+            <div class="face front" id="cardFront">—</div>
+            <div class="face back" id="cardBack">—</div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" id="showBtn">Zobraziť</button>
+          <button class="btn" id="knowBtn">Veděl som</button>
+          <button class="btn" id="dontBtn">Nevedel som</button>
+          <span class="right muted" id="queueInfo">0 / 0</span>
+        </div>
+      </div>
+      <div class="section" id="secGrammar">
+        <h3>2) Gramatika</h3>
+        <div id="grammarBlock"></div>
+      </div>
+      <div class="section" id="secPractice">
+        <h3>3) Doplňovanie & preklad</h3>
+        <div id="practiceBlock"></div>
+      </div>
+      <div class="section" id="secQuiz">
+        <h3>4) Mini test</h3>
+        <div id="miniQuizBlock"></div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn primary" id="gradeLessonQuiz">Vyhodnotiť</button>
+          <span class="right" id="lessonQuizScore"></span>
+        </div>
+      </div>
+      <div class="section" id="secOutput">
+        <h3>5) Output úloha</h3>
+        <p class="muted" id="outputTask"></p>
+        <textarea id="outputText" rows="4" style="width:100%;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);padding:10px" placeholder="Sem napíš krátku odpoveď..."></textarea>
+      </div>
+      <div class="row" style="justify-content:space-between">
+        <button class="btn" id="btnPrevLesson">◀ Predošlá</button>
+        <button class="btn primary" id="completeLesson" disabled>Dokončiť lekciu</button>
+        <button class="btn" id="btnNextLesson">Ďalšia ▶</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Onboarding quiz -->
+  <dialog id="onboard">
+    <div class="modal-head">
+      <strong>Vstupný kvíz</strong>
+      <button class="btn small ghost" id="closeOnboard">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="muted">30 otázok na úroveň + 5 otázok k témam. Každá otázka má aj voľbu „Neviem“.</p>
+      <div class="steps" id="stepDots"></div>
+      <div id="quizStage" class="list"></div>
+      <div class="row" style="justify-content:space-between;margin-top:8px">
+        <button class="btn" id="prevQ">Späť</button>
+        <div class="row">
+          <button class="btn ghost" id="skipQ">Neviem</button>
+          <button class="btn primary" id="nextQ">Ďalej</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script defer src="assets/js/app.js"></script>
+</body>
+</html>
